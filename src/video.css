@@ -1,0 +1,18 @@
+.modal-drill { gap: 8px; }
+.drill-check { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; cursor: pointer; }
+.drill-check input { flex: 0 0 auto; accent-color: #174a36; }
+.drill-check > small { color: #df795f; font: 9px 'Rubik', sans-serif; }
+.drill-check > span { display: grid; gap: 3px; min-width: 0; }
+.drill-check > span b { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.drill-check > span small { color: #839087; font-size: 8px; }
+.drill-time { flex: 0 0 auto; color: #839087; font-size: 8px; white-space: nowrap; }
+.video-link { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; padding: 6px 7px; border: 1px solid #d7e1d5; border-radius: 2px; color: #315b3d; font-size: 8px; text-decoration: none; white-space: nowrap; }
+.video-link:hover { border-color: #174a36; background: #eaf1e6; }
+.video-link span { color: #e7775d; font-size: 8px; }
+@media (max-width: 450px) {
+  .modal-drill { flex-wrap: wrap; padding: 8px 0; }
+  .drill-check { flex-basis: calc(100% - 58px); }
+  .drill-check > span b { white-space: normal; }
+  .video-link { margin-right: 27px; }
+  .drill-time { margin-right: auto; }
+}

@@ -39,6 +39,11 @@ function todayKey() {
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 }
 
+function demoSearchUrl(drill) {
+  const query = `${drill.title} football training drill demonstration`;
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+}
+
 function makeProgram(profile) {
   const matching = drills.filter((drill) => drill.positions.includes(profile.position) && drill.goals.includes(profile.goal) && rank[drill.level] <= rank[profile.level]);
   const fallback = drills.filter((drill) => drill.positions.includes(profile.position) && !matching.includes(drill));
@@ -123,8 +128,25 @@ function App() {
       {page === 'library' && <section className="content"><div className="heading"><div><p className="eyebrow">ארגז הכלים שלך</p><h1>ספריית<br /><span>התרגילים.</span></h1><p className="intro">תרגילים לכל עמדה, רמה ומטרת משחק.</p></div><div className="today-date"><small>תרגילים</small><strong>{filtered.length}</strong><small>בספרייה</small></div></div><label className="search"><span>⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="חיפוש תרגיל או מיומנות" aria-label="חיפוש תרגילים" /></label><div className="filters">{categories.map((item) => <button key={item} className={filter === item ? 'selected' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div>{filtered.length ? <div className="drill-grid">{filtered.map((drill, index) => <article className="drill-card" key={drill.id}><div className={`drill-art art-${index % 4}`}><small>0{index + 1}</small><b>{drill.type}</b><span /></div><div className="drill-body"><small>{drill.type} <i /> {drill.minutes} דק׳</small><h2>{drill.title}</h2><p>{drill.text}</p><div><span>{drill.level}</span><span>{drill.goals.includes(profile.goal) ? 'מתאים למטרה שלך' : drill.goals[0]}</span></div></div></article>)}</div> : <div className="empty"><b>לא מצאנו תרגיל כזה</b><p>נסה מילה אחרת או קטגוריה שונה.</p></div>}</section>}
       {page === 'progress' && <section className="content"><div className="heading"><div><p className="eyebrow">הנתונים שלך</p><h1>רואים את<br /><span>העבודה.</span></h1><p className="intro">כל אימון שהשלמת מקרב אותך ליעד הבא.</p></div><div className="today-date"><small>אימונים השבוע</small><strong>{weeklyCount}</strong><small>היעד: {profile.days}</small></div></div><div className="metrics"><article><small>אימונים ב־7 ימים</small><b>{weeklyCount}</b><small>יעד אישי: {profile.days}</small></article><article><small>דקות אימון</small><b>{log.reduce((sum, item) => sum + item.minutes, 0)}</b><small>זמן מצטבר</small></article><article><small>אימונים שהושלמו</small><b>{log.length}</b><small>מאז תחילת המעקב</small></article></div><section className="block chart-block"><div className="section-head"><div><small>עקביות מנצחת</small><h2>שבעת הימים האחרונים</h2></div></div><div className="large-chart">{week.map((day) => <div className={`large-day ${day.today ? 'is-today' : ''}`} key={day.key}><small>{day.count || ''}</small><div><span style={{ height: `${day.count ? Math.min(90, 25 + day.count * 25) : 3}%` }} /></div><small>{day.short} {day.day}</small></div>)}</div></section><section className="block"><div className="section-head"><div><small>יומן עבודה</small><h2>האימונים האחרונים</h2></div>{log.length > 0 && <button className="reset" onClick={() => setLog([])}>איפוס היסטוריה</button>}</div>{log.length ? [...log].reverse().slice(0, 8).map((item) => <div className="history-row" key={item.id}><b>✓</b><strong>{item.name}</strong><span>{item.minutes} דקות</span><small>{new Intl.DateTimeFormat('he-IL', { day: 'numeric', month: 'short' }).format(new Date(`${item.date}T12:00:00`))}</small></div>) : <div className="empty"><b>האימון הראשון עוד לפניך</b><p>השלם אימון מהתוכנית והמעקב יתחיל להתמלא.</p></div>}</section></section>}
     </main>
-    {session && <div className="modal-bg" onMouseDown={(event) => { if (event.target === event.currentTarget) setSession(null); }}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><header><small>{session.minutes} דקות · {session.drills.length} תחנות</small><button onClick={() => setSession(null)} aria-label="סגירה">×</button></header><h2 id="modal-title">{session.name}</h2><p className="modal-intro">סמן כל תחנה לאחר שביצעת אותה. קח מנוחה לפי הצורך.</p>{session.drills.map((drill, index) => <label className={`modal-drill ${checked.includes(drill.id) ? 'checked' : ''}`} key={drill.id}><input type="checkbox" checked={checked.includes(drill.id)} onChange={() => setChecked((current) => current.includes(drill.id) ? current.filter((id) => id !== drill.id) : [...current, drill.id])} /><small>0{index + 1}</small><span><b>{drill.title}</b><small>{drill.text}</small></span><small>{drill.minutes} דק׳</small></label>)}{doneToday.has(session.id) ? <p className="done-message">האימון כבר הושלם היום ✓</p> : <button className="primary finish" disabled={checked.length !== session.drills.length} onClick={completeSession}>{checked.length === session.drills.length ? 'סיימתי את האימון' : `סמן את כל התחנות · ${checked.length}/${session.drills.length}`} ←</button>}<p className="modal-safety">התאם את הקצב ליכולת שלך. כאב הוא סימן לעצור.</p></section></div>}
+    {session && <SessionModal session={session} checked={checked} setChecked={setChecked} done={doneToday.has(session.id)} onClose={() => setSession(null)} onComplete={completeSession} />}
     {toast && <div className="toast" role="status">✓ {toast}</div>}
+  </div>;
+}
+
+function SessionModal({ session, checked, setChecked, done, onClose, onComplete }) {
+  return <div className="modal-bg" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header><small>{session.minutes} דקות · {session.drills.length} תחנות</small><button onClick={onClose} aria-label="סגירה">×</button></header>
+      <h2 id="modal-title">{session.name}</h2>
+      <p className="modal-intro">סמן כל תחנה לאחר שביצעת אותה. קח מנוחה לפי הצורך.</p>
+      {session.drills.map((drill, index) => <div className={`modal-drill ${checked.includes(drill.id) ? 'checked' : ''}`} key={drill.id}>
+        <label className="drill-check"><input type="checkbox" checked={checked.includes(drill.id)} onChange={() => setChecked((current) => current.includes(drill.id) ? current.filter((id) => id !== drill.id) : [...current, drill.id])} /><small>0{index + 1}</small><span><b>{drill.title}</b><small>{drill.text}</small></span></label>
+        <a className="video-link" href={demoSearchUrl(drill)} target="_blank" rel="noopener noreferrer" aria-label={`חפש סרטון הדגמה עבור ${drill.title}`}><span aria-hidden="true">▶</span> צפה בהדגמה</a>
+        <small className="drill-time">{drill.minutes} דק׳</small>
+      </div>)}
+      {done ? <p className="done-message">האימון כבר הושלם היום ✓</p> : <button className="primary finish" disabled={checked.length !== session.drills.length} onClick={onComplete}>{checked.length === session.drills.length ? 'סיימתי את האימון' : `סמן את כל התחנות · ${checked.length}/${session.drills.length}`} ←</button>}
+      <p className="modal-safety">התאם את הקצב ליכולת שלך. כאב הוא סימן לעצור.</p>
+    </section>
   </div>;
 }
 

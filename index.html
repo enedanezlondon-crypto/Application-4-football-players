@@ -10,25 +10,50 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
-      /* Show the Google Translate language selector as a compact app control. */
-      #google_translate_element{position:fixed;top:12px;left:14px;z-index:1000;background:linear-gradient(135deg,#174a36 0%,#36a269 55%,#b5ee65 100%);border:1px solid #2f8653;border-radius:8px;padding:5px 10px;box-shadow:0 3px 12px #174a3640}
-      #google_translate_element:before{content:'Change language';display:inline-block;margin-right:8px;color:#fff;font:700 12px 'Heebo',sans-serif;vertical-align:middle}
-      #google_translate_element select{max-width:180px;height:30px;border:1px solid #ffffff80;border-radius:5px;background:#ffffffed;color:#173b2b;font:600 12px 'Heebo',sans-serif;cursor:pointer;vertical-align:middle}
+      #language-control{position:fixed;top:12px;left:14px;z-index:1000;display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid #2f8653;border-radius:8px;background:linear-gradient(135deg,#174a36 0%,#36a269 55%,#b5ee65 100%);box-shadow:0 3px 12px #174a3640}
+      #language-control label{color:#fff;font:700 12px 'Heebo',sans-serif;white-space:nowrap}
+      #language-picker{max-width:190px;height:31px;padding:0 8px;border:1px solid #ffffff80;border-radius:5px;background:#ffffffed;color:#173b2b;font:600 12px 'Heebo',sans-serif;cursor:pointer}
+      #google_translate_element{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
       .goog-te-gadget{font:0 'Heebo',sans-serif!important;color:transparent!important}
-      .goog-te-gadget .goog-te-combo{margin:0!important}
       .goog-te-gadget span,.goog-logo-link,.goog-te-banner-frame{display:none!important}
       body{top:0!important}
-      /* The sidebar pitch should be a landscape field (length > width). */
       .pitch{height:92px!important}
-      @media(max-width:850px){#google_translate_element{top:8px;left:8px;padding:4px 6px}#google_translate_element:before{font-size:10px;margin-right:5px}#google_translate_element select{max-width:135px;height:27px;font-size:10px}}
+      @media(max-width:850px){#language-control{top:8px;left:8px;gap:5px;padding:4px 6px}#language-control label{font-size:10px}#language-picker{max-width:135px;height:27px;padding:0 5px;font-size:10px}}
     </style>
   </head>
   <body>
-    <div id="google_translate_element" aria-label="Change language"></div>
+    <div id="language-control">
+      <label for="language-picker">Change language</label>
+      <select id="language-picker" aria-label="Change language">
+        <option value="">Change language</option>
+      </select>
+    </div>
+    <div id="google_translate_element" aria-hidden="true"></div>
     <div id="root"></div>
     <script>
       function googleTranslateElementInit(){
         new google.translate.TranslateElement({pageLanguage:'he',autoDisplay:false},'google_translate_element');
+        const picker = document.getElementById('language-picker');
+        const googleRoot = document.getElementById('google_translate_element');
+        const names = new Intl.DisplayNames(['en'], {type:'language'});
+        function syncLanguages(){
+          const googlePicker = googleRoot.querySelector('select.goog-te-combo');
+          if (!googlePicker || googlePicker.options.length < 2) return;
+          const selected = googlePicker.value;
+          const languages = Array.from(googlePicker.options)
+            .filter(option => option.value)
+            .map(option => ({code:option.value,name:names.of(option.value) || option.text.trim()}))
+            .sort((a,b) => a.name.localeCompare(b.name, 'en'));
+          picker.replaceChildren(new Option('Change language',''));
+          languages.forEach(language => picker.add(new Option(language.name, language.code)));
+          picker.value = selected;
+          picker.onchange = () => {
+            googlePicker.value = picker.value;
+            googlePicker.dispatchEvent(new Event('change', {bubbles:true}));
+          };
+        }
+        new MutationObserver(syncLanguages).observe(googleRoot, {childList:true,subtree:true});
+        syncLanguages();
       }
     </script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>

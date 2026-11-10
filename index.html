@@ -11,19 +11,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
       #language-control{position:fixed;top:12px;left:14px;z-index:1000;display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid #2f8653;border-radius:8px;background:linear-gradient(135deg,#174a36 0%,#36a269 55%,#b5ee65 100%);box-shadow:0 3px 12px #174a3640}
-      #language-control label{color:#fff;font:700 12px 'Heebo',sans-serif;white-space:nowrap}
       #language-picker{max-width:190px;height:31px;padding:0 8px;border:1px solid #ffffff80;border-radius:5px;background:#ffffffed;color:#173b2b;font:600 12px 'Heebo',sans-serif;cursor:pointer}
       #google_translate_element{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
       .goog-te-gadget{font:0 'Heebo',sans-serif!important;color:transparent!important}
       .goog-te-gadget span,.goog-logo-link,.goog-te-banner-frame{display:none!important}
       body{top:0!important}
       .pitch{height:92px!important}
-      @media(max-width:850px){#language-control{top:8px;left:8px;gap:5px;padding:4px 6px}#language-control label{font-size:10px}#language-picker{max-width:135px;height:27px;padding:0 5px;font-size:10px}}
+      @media(max-width:850px){#language-control{top:8px;left:8px;gap:5px;padding:4px 6px}#language-picker{max-width:150px;height:27px;padding:0 5px;font-size:10px}}
     </style>
   </head>
   <body>
     <div id="language-control">
-      <label for="language-picker">Change language</label>
       <select id="language-picker" aria-label="Change language">
         <option value="">Change language</option>
       </select>

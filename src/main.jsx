@@ -5,6 +5,7 @@ import './styles.css';
 import './video.css';
 import './image.css';
 import './video-links.js';
+import './group-training.js';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

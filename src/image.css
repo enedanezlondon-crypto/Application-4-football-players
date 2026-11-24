@@ -1,0 +1,8 @@
+/* Use the uploaded image in the home-page hero artwork. Vite bundles this asset from src. */
+.hero-art {
+  background: url('./A.png') center / cover no-repeat !important;
+}
+
+.hero-art > * {
+  display: none !important;
+}
